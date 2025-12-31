@@ -1,8 +1,10 @@
-import { TradeDay, Trade, TradeInput } from "../../types";
+import { TradeDay, Trade } from "../../types";
 import { AuditTable } from "../AuditTable";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
-import { PlusCircle, Search, Filter, Upload } from "lucide-react";
+import { PlusCircle, Upload } from "lucide-react";
+import { PerformanceCalendar } from "../charts/PerformanceCalendar";
+
 
 interface DashboardTabProps {
     days: TradeDay[];
@@ -36,6 +38,8 @@ export function DashboardTab({ days, onNewTrade, onEditTrade, onDeleteTrade }: D
 
     return (
         <div className="space-y-6">
+            <PerformanceCalendar days={days} />
+
             <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold text-slate-100">Histórico de Operações</h3>
                 <div className="flex gap-2">

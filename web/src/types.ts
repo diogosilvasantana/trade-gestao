@@ -21,7 +21,27 @@ export interface TradePeriod {
     cycle_number: number;
 }
 
-// ... Trade, TradeDay ...
+export interface Trade {
+    id: number;
+    date: string;
+    symbol: string;
+    quantity: number;
+    side: "BUY" | "SELL";
+    result_points: number;
+    setup?: string;
+    emotional_status?: string;
+    // Computed fields might be added here or kept separate
+}
+
+export interface TradeDay {
+    date: string;
+    gross_result: number;
+    total_costs: number;
+    net_result: number;
+    trades_count: number;
+    trades?: Trade[]; // Optional if we nest them
+}
+
 
 export interface StatsSummary {
     current_balance: number;
