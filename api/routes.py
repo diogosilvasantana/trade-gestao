@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+import shutil
+import uuid
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, date
@@ -243,6 +245,30 @@ def update_trade(trade_id: int, trade_in: TradeCreate, db: Session = Depends(get
     db.commit()
     
     return trade
+
+    return trade
+
+@router.post("/trades/{trade_id}/upload")
+def upload_trade_screenshot(trade_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    trade = db.query(Trade).filter(Trade.id == trade_id).first()
+    if not trade:
+        raise HTTPException(status_code=404, detail="Trade not found")
+    
+    # Gerar nome único para não sobrescrever
+    file_extension = file.filename.split(".")[-1]
+    filename = f"{trade_id}_{uuid.uuid4()}.{file_extension}"
+    file_path = f"uploads/{filename}"
+    
+    # Salvar arquivo
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    # Atualizar banco
+    trade.screenshot_path = file_path
+    db.commit()
+    db.refresh(trade)
+    
+    return {"filename": file_path}
 
 @router.get("/days", response_model=List[DayResponse])
 def get_days(db: Session = Depends(get_db)):

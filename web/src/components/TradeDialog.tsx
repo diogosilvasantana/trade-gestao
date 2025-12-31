@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { UploadCloud } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -20,7 +21,7 @@ interface TradeDialogProps {
     activePeriod: TradePeriod | null;
 }
 
-export function TradeDialog({ isOpen, onClose, onSubmit, initialData, defaultDate, activePeriod }: TradeDialogProps) {
+export function TradeDialog({ isOpen, onClose, onSubmit, initialData, defaultDate }: TradeDialogProps) {
     // Context
     const { currentLevel } = useCareer();
 
@@ -33,6 +34,7 @@ export function TradeDialog({ isOpen, onClose, onSubmit, initialData, defaultDat
     const [emotionalStatus, setEmotionalStatus] = useState("");
     const [riskChecked, setRiskChecked] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     // Derived
     const estimatedCost = calculateEstimatedCost(symbol, parseInt(qty) || 0);
@@ -49,6 +51,7 @@ export function TradeDialog({ isOpen, onClose, onSubmit, initialData, defaultDat
                 setEmotionalStatus(initialData.emotional_status || "");
                 if ((initialData as any).date) setDate((initialData as any).date);
                 setRiskChecked(true); // Assume editing means it was checked before
+                setSelectedFile(null); // Reset file
             } else {
                 setSymbol("WIN");
                 setQty("1"); // Default
@@ -56,10 +59,17 @@ export function TradeDialog({ isOpen, onClose, onSubmit, initialData, defaultDat
                 setSide("BUY");
                 setEmotionalStatus("");
                 setRiskChecked(false);
+                setSelectedFile(null);
             }
             if (defaultDate && !initialData) setDate(defaultDate);
         }
     }, [isOpen, initialData, defaultDate]);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setSelectedFile(e.target.files[0]);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -82,7 +92,7 @@ export function TradeDialog({ isOpen, onClose, onSubmit, initialData, defaultDat
 
             if (isNaN(points) || isNaN(quantity)) throw new Error("Dados inválidos");
 
-            await onSubmit({
+            const newTrade = await onSubmit({
                 date,
                 symbol,
                 quantity,
@@ -90,6 +100,19 @@ export function TradeDialog({ isOpen, onClose, onSubmit, initialData, defaultDat
                 result_points: points,
                 emotional_status: emotionalStatus
             });
+
+            // Upload Screenshot if exists and we have an ID
+            if (selectedFile && newTrade?.id) {
+                const uploadData = new FormData();
+                uploadData.append('file', selectedFile);
+
+                // Assuming API is at localhost:8000 based on standard setup
+                await fetch(`http://127.0.0.1:8000/api/trades/${newTrade.id}/upload`, {
+                    method: 'POST',
+                    body: uploadData,
+                });
+            }
+
             onClose();
         } catch (err: any) {
             console.error(err);
@@ -162,20 +185,44 @@ export function TradeDialog({ isOpen, onClose, onSubmit, initialData, defaultDat
                     </div>
 
                     {/* Emocional */}
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="emotional" className="text-right">Emocional</Label>
-                        <select
-                            id="emotional"
-                            className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                            value={emotionalStatus}
-                            onChange={e => setEmotionalStatus(e.target.value)}
-                        >
-                            <option value="">Selecione...</option>
-                            <option value="Confiante">Confiante</option>
-                            <option value="Ansioso">Ansioso</option>
-                            <option value="Tédio">Tédio</option>
-                            <option value="Vingança/Raiva">Vingança/Raiva</option>
-                        </select>
+                    {/* Emocional & Upload - Grid de 2 colunas para melhor layout */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label>Sentimento</Label>
+                            <select
+                                id="emotional"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                value={emotionalStatus}
+                                onChange={e => setEmotionalStatus(e.target.value)}
+                            >
+                                <option value="">Selecione...</option>
+                                <option value="CONFIDENT">🎯 Confiante</option>
+                                <option value="NEUTRAL">😐 Neutro</option>
+                                <option value="ANXIOUS">😰 Ansioso</option>
+                                <option value="FOMO">🏃 FOMO</option>
+                                <option value="REVENGE">😡 Vingança</option>
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Print do Gráfico</Label>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                    id="file-upload"
+                                />
+                                <label
+                                    htmlFor="file-upload"
+                                    className="flex items-center justify-center w-full px-3 py-2 h-10 text-sm text-slate-400 bg-slate-900 border border-slate-700 rounded-md cursor-pointer hover:bg-slate-800 transition-colors truncate"
+                                >
+                                    <UploadCloud className="w-4 h-4 mr-2" />
+                                    {selectedFile ? "Arquivo selecionado" : "Anexar"}
+                                </label>
+                            </div>
+                            {selectedFile && <div className="text-[10px] text-emerald-500 truncate">{selectedFile.name}</div>}
+                        </div>
                     </div>
 
                     {/* Compliance Checkbox */}

@@ -18,12 +18,17 @@ Para garantir que seu resultado no simulador reflita a realidade da mesa, o sist
 *   *O Dashboard exibe claramente o Resultado Bruto, Custos Totais e Resultado Líquido.*
 
 ### 3. Dashboard Profissional
+*   **Calendário de Performance (Heatmap)**: Visualização mensal estilo "GitHub" para identificar consistência (Dias Verdes vs Vermelhos). Interativo com Tooltips detalhados.
+*   **Monitor de Risco**: Widget visual dedicado que exibe o consumo do seu Limite Diário e Drawdown Global em tempo real.
 *   **Termômetro de Aprovação**: Acompanhe visualmente o quão perto você está da meta (ex: R$ 3.000,00 no Plano Prata).
-*   **Gestão de Risco**: Alertas visuais se você estiver próximo do Limite de Perda Diária ou Max Drawdown.
 *   **Estatísticas Detalhadas**: Curva de capital, taxa de acerto (Win Rate), Payoff, maior ganho, maior perda e dias consecutivos de gain/loss.
 
 ### 4. Importação de Dados
 *   **ProfitChart Desktop**: Suporte nativo para importação de relatórios de performance via CSV (detalhado ou resumido). O sistema detecta automaticamente ativos, lados (compra/venda) e resultados.
+
+### 5. Diário de Trade Aprimorado
+*   **Registro Emocional**: Classifique cada trade com seu estado psicológico (Confiante, Ansioso, Fúria, etc.) para análise comportamental.
+*   **Evidências Visuais**: Upload de prints (screenshots) do gráfico diretamente no card do trade. "Uma imagem vale mais que mil palavras".
 
 ---
 

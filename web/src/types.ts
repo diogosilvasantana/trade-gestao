@@ -30,6 +30,7 @@ export interface Trade {
     result_points: number;
     setup?: string;
     emotional_status?: string;
+    screenshot_path?: string;
     // Computed fields might be added here or kept separate
 }
 
